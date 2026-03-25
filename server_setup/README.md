@@ -1,38 +1,60 @@
 Role Name
 =========
 
-A brief description of the role goes here.
-
+This Role does the following: 
+- sets up a user 
+- gives the user sudo priviliges 
+- configures passwordless sudo for the created user
+- copies the publickey of the new user, denies passsword authentication, allows pukbey authentication, denies ssh access as root
+- updates the system and installs essential packages
+- Tested on Debian and Rocky 
+- Should work on other Debian and RedHead Distros as well
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+an ssh keypair for setting up pukey authentication
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+main.yaml: 
+
+- server_setup_new_user --> enter your desired username
+- server_setup_pub_key --> enter your publickey
+- server_setup_packages --> enter a list of apt packages 
+*do not remove sudo. if you do passwordless sudo will not work* 
+- server_setup_dnf_packages --> enter a list of dnf packages
+*do not remove sudo. if you do passwordless sudo will not work*
+- server_setup_password --> password for your new user 
+*Encrypt your variable with the following command, where password stands for your password* 
+`ansible-vault encrypt_string 'server_setup_password' --name 'password'`
+or if your are using a password file
+`ansible-vault encrypt_string --vault-password-file a_password_file 'server_setup_password' --name 'password'`
+
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+None
 
 Example Playbook
 ----------------
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+- name: Setup a Server.
+  hosts: all
+  gather_facts: true
+  become: true
+    
+  roles:
+   - server_setup
 
 License
 -------
 
-BSD
+GNU_GPL_V2
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
