@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: MIT-0
+---
+# vars file for server_setup
+server_setup_new_user: semaphore # replace with desired username
+server_setup_pub_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINnCwLCaTKD2Dg5zdsJgn7H7Tk/MmeZna9MNbvrRZXSY steve@steve-pc" # replace with desired pubkey
+server_setup_packages: # insert a list of packages here
+  - micro
+  - sudo
+  - htop
+  - unzip
+  - fastfetch
+server_setup_dnf_packages: # insert a list of packages here
+  - sudo
+  - htop
+  - unzip
+  - fastfetch
+server_setup_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          37326366376638383333356130623639613133336436333038663438333339633961623033626165
+          6432323832356261623939326661646638626461613632330a353736363538323238336136363832
+          66386436316664336631346461613464623663646362346262313233356265333162653464636363
+          3666373866376637660a663762323464346366653061653339313631363037616131633735373831
+          35303863333134336366313830326131633733376331333132653137306266363533

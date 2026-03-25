@@ -1,0 +1,107 @@
+---
+- name: Update the Debian using apt.
+  ansible.builtin.apt:
+      update_cache: true # apt update
+      cache_valid_time: 3600 # do apt update if it wasn't done within the last hour
+      upgrade: "full"
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Update Rocky using dnf.
+  ansible.builtin.dnf:
+      name: "*" # dnf -y update
+      state: latest
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Install epel the Rocky using dnf.
+  ansible.builtin.dnf:
+      name: epel-release # enable epel packages
+      state: present
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Install apt packages.
+  ansible.builtin.apt:
+      name: "{{ server_setup_packages }}"
+      state: present
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Install dnf packages.
+  ansible.builtin.dnf:
+      name: "{{ server_setup_dnf_packages }}"
+      state: present
+      enablerepo: epel
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: User will be created.
+  ansible.builtin.user:
+      name: "{{ server_setup_new_user }}"
+      shell: /bin/bash
+      create_home: true
+      home: "/home/{{ server_setup_new_user }}"
+      groups: wheel # use wheel for rocky
+      password: "{{ server_setup_password }}"
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: User will be created.
+  ansible.builtin.user:
+      name: "{{ server_setup_new_user }}"
+      shell: /bin/bash
+      create_home: true
+      home: "/home/{{ server_setup_new_user }}"
+      groups: sudo # use sudo for debian
+      password: "{{ server_setup_password }}"
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Run fastfetch on bash startup.
+  ansible.builtin.lineinfile:
+      path: "/home/{{ server_setup_new_user }}/.bashrc"
+      line: 'fastfetch'
+      state: present
+      insertafter: EOF
+
+- name: Creat .ssh directory.
+  ansible.builtin.file:
+      path: "/home/{{ server_setup_new_user }}/.ssh" # used quotes because of var
+      owner: "{{ server_setup_new_user }}"
+      group: "{{ server_setup_new_user }}"
+      state: directory
+      mode: '0700'
+
+# you can't use file module becuase it won't create an empty file. You need to copy an "empty file" file with the copy module instead
+- name: Creat authorized_keys file for the new user.
+  ansible.builtin.copy:
+      content: "" # this makes the file empty
+      dest: "/home/{{ server_setup_new_user }}/.ssh/authorized_keys" # used quotes because of var
+      owner: "{{ server_setup_new_user }}"
+      group: "{{ server_setup_new_user }}"
+      force: false
+      mode: '0600'
+
+- name: Copy the public key for the new user.
+  ansible.builtin.lineinfile:
+      path: "/home/{{ server_setup_new_user }}/.ssh/authorized_keys"
+      line: "{{ server_setup_pub_key }}"
+      state: present
+
+- name: Passwordless sudo for the new user.
+  ansible.builtin.lineinfile:
+      path: /etc/sudoers
+      state: present
+      line: '"{{ server_setup_new_user }}" ALL=(ALL) NOPASSWD: ALL'
+      validate: /usr/sbin/visudo -cf %s
+    # Might be better to create a backup of default config and copy the desired /etc/ssh/sshd_config ?
+- name: Allow ssh for non-root users with pubkey only.
+  ansible.builtin.lineinfile:
+      path: /etc/ssh/sshd_config
+      regexp: "{{ item['regexp'] }}"
+      line: "{{ item['line'] }}"
+      state: present
+  with_items:
+      - regexp: '^PermitRootLogin yes'
+        line: 'PermitRootLogin no'
+      - regexp: '^#PubkeyAuthentication yes'
+        line: 'PubkeyAuthentication yes'
+      - regexp: '^PermitRootLogin yes'
+        line: 'PermitRootLogin no'
+      - regexp: '^#Passwordauthentication yes'
+        line: 'Passwordauthentication no'
+  notify: Restart ssh

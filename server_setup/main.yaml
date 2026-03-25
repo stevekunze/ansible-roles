@@ -1,0 +1,7 @@
+---
+vars_files:
+    - vars.yaml
+handlers:
+    - ansible.builtin.import_tasks: handlers/main.yaml
+tasks:
+    - ansible.builtin.include_tasks: /tasks/main.yaml
