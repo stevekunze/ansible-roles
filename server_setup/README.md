@@ -9,6 +9,7 @@ This Role does the following:
 - updates the system and installs essential packages
 - Tested on Debian and Rocky 
 - Should work on other Debian and RedHead Distros as well
+
 Requirements
 ------------
 
@@ -22,11 +23,11 @@ main.yaml:
 - server_setup_new_user --> enter your desired username
 - server_setup_pub_key --> enter your publickey
 - server_setup_packages --> enter a list of apt packages 
-*do not remove sudo. if you do passwordless sudo will not work* 
+**do not remove sudo. if you do passwordless sudo will not work**
 - server_setup_dnf_packages --> enter a list of dnf packages
-*do not remove sudo. if you do passwordless sudo will not work*
+**do not remove sudo. if you do passwordless sudo will not work**
 - server_setup_password --> password for your new user 
-*Encrypt your variable with the following command, where password stands for your password* 
+**Encrypt your variable with the following command, where password stands for your password**
 `ansible-vault encrypt_string 'server_setup_password' --name 'password'`
 or if your are using a password file
 `ansible-vault encrypt_string --vault-password-file a_password_file 'server_setup_password' --name 'password'`
@@ -54,7 +55,4 @@ License
 -------
 
 GNU_GPL_V2
-
-Author Information
-------------------
 
