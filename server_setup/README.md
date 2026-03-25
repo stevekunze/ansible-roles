@@ -8,7 +8,7 @@ This Role does the following:
 - copies the publickey of the new user, denies passsword authentication, allows pukbey authentication, denies ssh access as root
 - updates the system and installs essential packages
 - Tested on Debian and Rocky 
-- Should work on other Debian and RedHead Distros as well
+- Should work on other Debian and RedHat Distros as well
 
 Requirements
 ------------
@@ -43,6 +43,7 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
+```yaml
 - name: Setup a Server.
   hosts: all
   gather_facts: true
@@ -50,6 +51,7 @@ Including an example of how to use your role (for instance, with variables passe
     
   roles:
    - server_setup
+```
 
 License
 -------
